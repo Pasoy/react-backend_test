@@ -1,26 +1,11 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+import { ToastContainer } from 'react-toastify';
+
+import http from './services/httpService';
+import config from './config.json';
 
 import './App.css';
-
-axios.interceptors.response.use(null, error => {
-    const expectedError =
-        error.response &&
-        error.response.status >= 400 &&
-        error.response.status < 500;
-
-    if (!expectedError) {
-        // unexpected (network down, server down, database down, bug)
-        // - log the errors
-        // - display generic and friendly error message
-        console.log('Logging the error', error);
-        alert('An unexpected error occurred.');
-    }
-
-    return Promise.reject(error);
-});
-
-const apiEndpoint = 'https://jsonplaceholder.typicode.com/posts';
+import 'react-toastify/dist/ReactToastify.css';
 
 class App extends Component {
     state = {
@@ -30,7 +15,7 @@ class App extends Component {
     async componentDidMount() {
         // promise is an object that holds the result of an asynchronus request
         // pending > resolved (success) or rejected (failure)
-        const promise = axios.get(apiEndpoint);
+        const promise = http.get(config.apiEndpoint);
 
         const { data: posts } = await promise;
         this.setState({ posts });
@@ -38,7 +23,7 @@ class App extends Component {
 
     handleAdd = async () => {
         const obj = { title: 'a', body: 'b' };
-        const { data: post } = await axios.post(apiEndpoint, obj);
+        const { data: post } = await http.post(config.apiEndpoint, obj);
 
         const posts = [post, ...this.state.posts];
 
@@ -48,12 +33,12 @@ class App extends Component {
     handleUpdate = async post => {
         post.title = 'UPDATED';
 
-        // axios put method - updates whole thing
-        await axios.put(apiEndpoint + '/' + post.id, post);
+        // http put method - updates whole thing
+        await http.put(config.apiEndpoint + '/' + post.id, post);
 
-        // axios patch method - updates only given property
+        // http patch method - updates only given property
         /*
-        await axios.patch(apiEndpoint + '/' + post.id, {
+        await http.patch(config.apiEndpoint + '/' + post.id, {
             title: post.title
         });
         */
@@ -72,7 +57,7 @@ class App extends Component {
         this.setState({ posts });
 
         try {
-            await axios.delete(apiEndpoint + '/' + post.id);
+            await http.delete(config.apiEndpoint + '/' + post.id);
         } catch (ex) {
             // expected (404: not found, 400: bad request) - client errors
             // - display a specific error message
@@ -87,6 +72,7 @@ class App extends Component {
     render() {
         return (
             <React.Fragment>
+                <ToastContainer />
                 <button className="btn btn-primary" onClick={this.handleAdd}>
                     Add
                 </button>
