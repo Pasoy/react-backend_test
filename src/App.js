@@ -15,9 +15,7 @@ class App extends Component {
     async componentDidMount() {
         // promise is an object that holds the result of an asynchronus request
         // pending > resolved (success) or rejected (failure)
-        const promise = http.get(config.apiEndpoint);
-
-        const { data: posts } = await promise;
+        const { data: posts } = await http.get(config.apiEndpoint);
         this.setState({ posts });
     }
 
@@ -26,7 +24,6 @@ class App extends Component {
         const { data: post } = await http.post(config.apiEndpoint, obj);
 
         const posts = [post, ...this.state.posts];
-
         this.setState({ posts });
     };
 
