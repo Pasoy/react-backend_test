@@ -3,6 +3,23 @@ import axios from 'axios';
 
 import './App.css';
 
+axios.interceptors.response.use(null, error => {
+    const expectedError =
+        error.response &&
+        error.response.status >= 400 &&
+        error.response.status < 500;
+
+    if (!expectedError) {
+        // unexpected (network down, server down, database down, bug)
+        // - log the errors
+        // - display generic and friendly error message
+        console.log('Logging the error', error);
+        alert('An unexpected error occurred.');
+    }
+
+    return Promise.reject(error);
+});
+
 const apiEndpoint = 'https://jsonplaceholder.typicode.com/posts';
 
 class App extends Component {
@@ -61,12 +78,6 @@ class App extends Component {
             // - display a specific error message
             if (ex.response && ex.response.status === 404) {
                 alert('This post has already been deleted.');
-            } else {
-                // unexpected (network down, server down, database down, bug)
-                // - log the errors
-                // - display generic and friendly error message
-                console.log('Logging the error', ex);
-                alert('An unexpected error occurred.');
             }
 
             this.setState({ posts: originalPosts });
